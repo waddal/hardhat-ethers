@@ -1,22 +1,24 @@
 const ethers = require("ethers");
 const fs = require("fs");
+require('dotenv').config();
 
 async function main() {
   // Ganache Address: http://127.0.0.1:7545
   const provider = new ethers.providers.JsonRpcProvider(
-    "http://127.0.0.1:7545"
+    process.env.RPC_URL
   );
-  const wallet = new ethers.Wallet(
-    "10f088495b2366969580442a8da07fe3d95ac15a9b5001c0f5a9d39e3daada92",
-    provider
-  );
+  // const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
+  const encryptedJson = fs.readFileSync("./.encryptedKey.json", 'utf-8');
+  let wallet = new ethers.Wallet.fromEncryptedJsonSync(encryptedJson, process.env.PRIVATE_KEY_PASSWORD);
+  wallet = await wallet.connect(provider);
+  
   const abi = fs.readFileSync("./SimpleStorage_sol_SimpleStorage.abi", "utf-8");
   const binary = fs.readFileSync(
     "./SimpleStorage_sol_SimpleStorage.bin",
     "utf-8"
   );
   const contractFactory = new ethers.ContractFactory(abi, binary, wallet);
-  console.log(`Deploying contract, please wait... \n`);
+  console.log(`Deploying contract, please wait... \n..`);
   const contract = await contractFactory.deploy();
   await contract.deployTransaction.wait(1);
 
