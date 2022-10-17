@@ -5,7 +5,7 @@ require("dotenv").config()
 async function main() {
     // Ganache Address: http://127.0.0.1:7545
     const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL)
-    // const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
+    // const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider)
     const encryptedJson = fs.readFileSync("./.encryptedKey.json", "utf-8")
     let wallet = new ethers.Wallet.fromEncryptedJsonSync(
         encryptedJson,
@@ -25,6 +25,7 @@ async function main() {
     console.log(`Deploying contract, please wait... \n...`)
     const contract = await contractFactory.deploy()
     await contract.deployTransaction.wait(1)
+    console.log(`Contract Address: ${contract.address}`)
 
     // retrieving fav num
     const currentFavoriteNumber = await contract.retrieve()
@@ -40,9 +41,9 @@ async function main() {
     console.log(`Updated Favorite Number: ${updatedFavoriteNumber.toString()}`)
 }
 
-main().then(() =>
-    process.exit(0).catch((error) => {
+main()
+    .then(() => process.exit(0))
+    .catch((error) => {
         console.error(error)
         process.exit(1)
     })
-)
